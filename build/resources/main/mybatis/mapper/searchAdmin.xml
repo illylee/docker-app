@@ -1,0 +1,29 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.dockerapp.mapper.SearchAdminMapper">
+
+    <select id="selectSynonymList" resultType="com.example.dockerapp.domain.SynonymDomain">
+        SELECT
+            synonym_seq
+            , synonym
+            , modified_ymdt
+        FROM search_synonym
+        <if test="keyword != null and keyword.length() > 0">
+            WHERE synonym LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+
+    </select>
+
+    <select id="selectSynonymList2" resultType="com.example.dockerapp.domain.SynonymDomain">
+        SELECT
+        synonym_seq
+        , synonym
+        , modified_ymdt
+        FROM search_synonym2
+        <if test="keyword != null and keyword.length() > 0">
+            WHERE synonym LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+
+    </select>
+
+
+</mapper>

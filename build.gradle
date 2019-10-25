@@ -1,0 +1,67 @@
+buildscript {
+    dependencies {
+        classpath('se.transmode.gradle:gradle-docker:1.2')
+    }
+}
+
+plugins {
+    id 'org.springframework.boot' version '2.1.8.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
+    id 'java'
+    id 'com.google.cloud.tools.jib' version '1.0.0'
+    id 'org.hidetake.ssh' version '2.9.0'
+
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    compile('org.springframework.boot:spring-boot-starter-cache')
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.1.0'
+    runtimeOnly 'mysql:mysql-connector-java'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.4'
+    compile group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '2.8.0'
+}
+
+apply plugin: 'docker'
+
+task buildDocker(type: Docker, dependsOn: build) {
+    dockerfile = file('src/main/docker/Dockerfile')
+    doFirst {
+        copy {
+            from jar
+            into stageDir
+        }
+    }
+}
+
+task dockerLocalRun(){
+    
+    doLast{
+        def imageName = "${project.name}:${project.version}"
+        def containerName = "my-demo"
+
+        exec{ commandLine "docker stop ${containerName}".split(' ') }
+        exec{ commandLine "docker rm ${containerName}".split(' ') }
+        exec{ commandLine "docker run -d -p 80:8080 --name my-demo ${imageName}".split(' ') }
+    }
+}
+
+
+
